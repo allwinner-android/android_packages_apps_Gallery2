@@ -29,6 +29,7 @@ import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.android.gallery3d.R;
@@ -167,6 +168,16 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             mSlotView.layout(0, slotViewTop, slotViewRight, slotViewBottom);
             GalleryUtils.setViewPointMatrix(mMatrix,
                     (right - left) / 2, (bottom - top) / 2, -mUserDistance);
+        }
+
+        @Override
+        protected boolean onKeyDown(int keyCode,KeyEvent event){
+            return mSlotView.onKeyDown(keyCode,event);
+        }
+
+        @Override
+        protected boolean onKeyUp(int keyCode,KeyEvent event){
+            return mSlotView.onKeyUp(keyCode,event);
         }
 
         @Override

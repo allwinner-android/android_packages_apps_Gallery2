@@ -24,6 +24,8 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Message;
 import android.view.MotionEvent;
+import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View.MeasureSpec;
 import android.view.animation.AccelerateInterpolator;
 
@@ -472,6 +474,30 @@ public class PhotoView extends GLView {
         Picture p = mPictures.get(index);
         mPositionController.setImageSize(index, p.getSize(),
                 index == 0 && p.isCamera() ? mCameraRect : null);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        int w = getWidth();
+        int h = getHeight();
+        if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT){
+          slideToPrevPicture();
+        }else if(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT){
+          slideToNextPicture();
+        }else if(keyCode == KeyEvent.KEYCODE_DPAD_UP){
+          mGestureListener.onScale((float)w/2,(float)h/2,0.9f);
+        }else if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+          mGestureListener.onScale((float)w/2,(float)h/2,1.1f);
+        }else if(keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
+          Log.d(TAG,"mListener.onUndoBarVisibilityChanged");
+          showUndoBar(true);
+        }
+        return super.onKeyDown(keyCode,event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+	return super.onKeyUp(keyCode,event);
     }
 
     @Override

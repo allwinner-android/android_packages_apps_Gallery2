@@ -21,14 +21,8 @@
     <item android:id="@+id/action_select"
             android:title="@string/select_album"
             android:showAsAction="never" />
-    <item android:id="@+id/action_manage_offline"
-            android:title="@string/make_available_offline"
-            android:showAsAction="never" />
     <item android:id="@+id/action_sync_picasa_albums"
             android:title="@string/sync_picasa_albums"
-            android:showAsAction="never" />
-    <item android:id="@+id/action_settings"
-            android:title="@string/settings"
             android:showAsAction="never" />
     <item android:id="@+id/action_general_help"
             android:title="@string/help"

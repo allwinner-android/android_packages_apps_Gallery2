@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.InputDevice;
 import android.view.MotionEvent;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -271,5 +272,12 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
             return dispatchTouchEvent(touchEvent);
         }
         return super.onGenericMotionEvent(event);
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	if(keyCode == KeyEvent.KEYCODE_BACK){
+ 	    //this.finish();
+    	}
+    	return super.onKeyDown(keyCode,event);
     }
 }

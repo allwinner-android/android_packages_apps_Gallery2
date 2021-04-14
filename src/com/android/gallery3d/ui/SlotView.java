@@ -17,15 +17,21 @@
 package com.android.gallery3d.ui;
 
 import android.graphics.Rect;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.KeyEvent;
+import android.util.Log;
 import android.view.animation.DecelerateInterpolator;
 
 import com.android.gallery3d.anim.Animation;
 import com.android.gallery3d.app.AbstractGalleryActivity;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.glrenderer.GLCanvas;
+import com.android.gallery3d.glrenderer.GLPaint;
 
 public class SlotView extends GLView {
     @SuppressWarnings("unused")
@@ -198,6 +204,72 @@ public class SlotView extends GLView {
         return mLayout.getSlotRect(slotIndex, new Rect());
     }
 
+    private int mCurrSlot = 0;
+    private int mScallorCount = 0;
+    private Runnable mLongPressRunnbale;
+    private boolean sendState = false;
+    private boolean tapState = false;
+
+    @Override
+    public boolean onKeyDown(int keyCode,KeyEvent event){
+        int count = mLayout.getSlotCount();
+        int unitcount = mLayout.getUnitCount();
+        int row = unitcount!=0 ? count/unitcount : 0;
+        int pading = mLayout.getSlotSpec().slotGap;
+        Rect rect = mLayout.getSlotRect(mCurrSlot,new Rect());
+        if(keyCode == KeyEvent.KEYCODE_DPAD_UP){
+	    if(mCurrSlot > 0)
+		mCurrSlot = mCurrSlot - 1;
+	}else if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+            if(rect.left + mLayout.getSlotWidth() < this.getWidth())
+		mCurrSlot = mCurrSlot + 1;
+	}else if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT){
+            if(mScallorCount > 0)
+		mScallorCount = mScallorCount - 1;
+	    int overDistance = mScroller.startScroll( 0 - (mLayout.getSlotWidth() + pading) , 0, mLayout.getScrollLimit());
+        }else if(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT){
+	    if((mScallorCount +1) * mLayout.getSlotWidth() < mLayout.getScrollLimit()){
+		mScallorCount = mScallorCount + 1;
+		int overDistance = mScroller.startScroll(mLayout.getSlotWidth() + pading , 0, mLayout.getScrollLimit());
+            }
+        }else if(keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
+            if(!sendState){
+                tapState = false;
+		mLongPressRunnbale = new Runnable(){
+		    @Override
+		    public void run(){
+			mListener.onLongTap(mCurrSlot);
+			tapState = true;
+		    }
+		};
+                mHandler.postDelayed(mLongPressRunnbale,1000);
+		sendState = true;
+            }
+        }else{
+        }
+        invalidate();
+        return super.onKeyDown(keyCode,event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode,KeyEvent event){
+        final Rect rect = mLayout.getSlotRect(mCurrSlot,new Rect());
+        if(keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
+	    mHandler.removeCallbacks(mLongPressRunnbale);
+	    sendState = false;
+	    if(!tapState){
+            final MotionEvent me1 = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+                MotionEvent.ACTION_DOWN,rect.left +  (rect.right - rect.left)/2, rect.top + (rect.bottom - rect.top)/2, 0);
+                onTouch(me1);
+            final MotionEvent me2 = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+                MotionEvent.ACTION_UP,rect.left +  (rect.right - rect.left)/2, rect.top + (rect.bottom - rect.top)/2, 0);
+                onTouch(me2);
+	    }
+            tapState = false;
+	}
+        return super.onKeyUp(keyCode,event);
+    }
+
     @Override
     protected boolean onTouch(MotionEvent event) {
         if (mUIListener != null) mUIListener.onUserInteraction();
@@ -270,6 +342,10 @@ public class SlotView extends GLView {
         if (mAnimation != null) {
             more |= mAnimation.calculate(animTime);
         }
+        Rect rect = mLayout.getSlotRect(mCurrSlot,new Rect());
+        GLPaint paint = new GLPaint();
+        paint.setColor(Color.GREEN);
+        paint.setLineWidth(4);
 
         canvas.translate(-mScrollX, -mScrollY);
 
@@ -296,6 +372,10 @@ public class SlotView extends GLView {
 
         canvas.translate(mScrollX, mScrollY);
 
+        float w = (float)(rect.right - rect.left);
+        float h = (float)(rect.bottom - rect.top);
+        if(mLayout.getSlotCount()>0)
+        canvas.drawRect((float)rect.left,(float)rect.top ,w,h,paint);
         if (more) invalidate();
 
         final UserInteractionListener listener = mUIListener;
@@ -417,7 +497,9 @@ public class SlotView extends GLView {
         public void setSlotSpec(Spec spec) {
             mSpec = spec;
         }
-
+        public Spec getSlotSpec(){
+        	  return mSpec;
+        }
         public boolean setSlotCount(int slotCount) {
             if (slotCount == mSlotCount) return false;
             if (mSlotCount != 0) {
@@ -432,13 +514,22 @@ public class SlotView extends GLView {
                     || hPadding != mHorizontalPadding.getTarget();
         }
 
+        public int getSlotCount(){
+           return mSlotCount;
+        }
+
+        public int getUnitCount(){
+        	 return mUnitCount;
+        }
+
+
         public Rect getSlotRect(int index, Rect rect) {
             int col, row;
             if (WIDE) {
-                col = index / mUnitCount;
+                col = mUnitCount != 0 ? index / mUnitCount : 0;
                 row = index - col * mUnitCount;
             } else {
-                row = index / mUnitCount;
+                row = mUnitCount != 0 ? index / mUnitCount : 0;
                 col = index - row * mUnitCount;
             }
 
@@ -489,6 +580,7 @@ public class SlotView extends GLView {
             // If the content length is less then the screen width, put
             // extra padding in left and right.
             padding[1] = Math.max(0, (majorLength - mContentLength) / 2);
+
         }
 
         private void initLayoutParameters() {
@@ -517,7 +609,7 @@ public class SlotView extends GLView {
                 initLayoutParameters(mHeight, mWidth, mSlotHeight, mSlotWidth, padding);
                 mVerticalPadding.startAnimateTo(padding[1]);
                 mHorizontalPadding.startAnimateTo(padding[0]);
-            }
+            };
             updateVisibleSlotRange();
         }
 
@@ -584,9 +676,8 @@ public class SlotView extends GLView {
             if (absoluteX < 0 || absoluteY < 0) {
                 return INDEX_NONE;
             }
-
-            int columnIdx = absoluteX / (mSlotWidth + mSlotGap);
-            int rowIdx = absoluteY / (mSlotHeight + mSlotGap);
+            int columnIdx =(mSlotWidth + mSlotGap) != 0 ? absoluteX / (mSlotWidth + mSlotGap):0;
+            int rowIdx = (mSlotHeight + mSlotGap) != 0 ? absoluteY / (mSlotHeight + mSlotGap):0;
 
             if (!WIDE && columnIdx >= mUnitCount) {
                 return INDEX_NONE;

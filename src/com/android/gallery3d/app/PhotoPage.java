@@ -36,6 +36,7 @@ import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.KeyEvent;
 import android.widget.RelativeLayout;
 import android.widget.ShareActionProvider;
 import android.widget.Toast;
@@ -240,6 +241,14 @@ public abstract class PhotoPage extends ActivityState implements
     }
 
     private final GLView mRootPane = new GLView() {
+        @Override
+        protected boolean onKeyDown(int keyCode,KeyEvent event){
+            return mPhotoView.onKeyDown(keyCode,event);
+        }
+        @Override
+        protected boolean onKeyUp(int keyCode,KeyEvent event){
+            return mPhotoView.onKeyUp(keyCode,event);
+        }
         @Override
         protected void onLayout(
                 boolean changed, int left, int top, int right, int bottom) {
@@ -472,6 +481,7 @@ public abstract class PhotoPage extends ActivityState implements
                     mAppBridge == null ? false : mAppBridge.isStaticCamera());
             mModel = pda;
             mPhotoView.setModel(mModel);
+            Log.d(TAG,"mModel index " + mModel.getCurrentIndex());
 
             pda.setDataListener(new PhotoDataAdapter.DataListener() {
 

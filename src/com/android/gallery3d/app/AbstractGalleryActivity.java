@@ -36,6 +36,8 @@ import android.support.v4.print.PrintHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.view.KeyEvent;
+import android.util.Log;
 import android.view.WindowManager;
 
 import com.android.gallery3d.R;
@@ -141,6 +143,33 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
     public void setContentView(int resId) {
         super.setContentView(resId);
         mGLRootView = (GLRootView) findViewById(R.id.gl_root_view);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(mGLRootView!=null){
+	  if(keyCode==KeyEvent.KEYCODE_BACK){
+		GLRoot root = getGLRoot();
+		root.lockRenderThread();
+		try {
+			getStateManager().onBackPressed();
+		} finally {
+			root.unlockRenderThread();
+		}
+	  }
+          return mGLRootView.onKeyDown(keyCode,event);
+        }else{
+          return false;
+        }
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(mGLRootView!=null){
+          return mGLRootView.onKeyUp(keyCode,event);
+        }else{
+          return false;
+        }
     }
 
     protected void onStorageReady() {

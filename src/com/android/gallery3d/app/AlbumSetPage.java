@@ -29,6 +29,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.KeyEvent;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -143,6 +144,16 @@ public class AlbumSetPage extends ActivityState implements
             }
 
             mSlotView.layout(0, slotViewTop, slotViewRight, slotViewBottom);
+        }
+
+        @Override
+        protected boolean onKeyDown(int keyCode,KeyEvent event){
+            return mSlotView.onKeyDown(keyCode,event);
+        }
+
+        @Override
+        protected boolean onKeyUp(int keyCode,KeyEvent event){
+            return mSlotView.onKeyUp(keyCode,event);
         }
 
         @Override
@@ -602,20 +613,8 @@ public class AlbumSetPage extends ActivityState implements
                 GalleryUtils.startCameraActivity(activity);
                 return true;
             }
-            case R.id.action_manage_offline: {
-                Bundle data = new Bundle();
-                String mediaPath = mActivity.getDataManager().getTopSetPath(
-                    DataManager.INCLUDE_ALL);
-                data.putString(AlbumSetPage.KEY_MEDIA_PATH, mediaPath);
-                mActivity.getStateManager().startState(ManageCachePage.class, data);
-                return true;
-            }
             case R.id.action_sync_picasa_albums: {
                 PicasaSource.requestSync(activity);
-                return true;
-            }
-            case R.id.action_settings: {
-                activity.startActivity(new Intent(activity, GallerySettings.class));
                 return true;
             }
             default:

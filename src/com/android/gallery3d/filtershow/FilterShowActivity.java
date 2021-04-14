@@ -347,7 +347,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
 
     private void loadXML() {
         setContentView(R.layout.filtershow_activity);
-
+        /*
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         actionBar.setCustomView(R.layout.filtershow_actionbar);
@@ -361,7 +361,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
                 saveImage();
             }
         });
-
+        */
         mImageShow = (ImageShow) findViewById(R.id.imageShow);
         mImageViews.add(mImageShow);
 

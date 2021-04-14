@@ -23,9 +23,11 @@ import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Process;
+import android.util.Log;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 
@@ -454,6 +456,22 @@ public class GLRootView extends GLSurfaceView
         } else {
             mCanvas.translate(-cx, -cy);
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(mContentView!=null){
+           mContentView.onKeyDown(keyCode,event);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(mContentView!=null){
+           mContentView.onKeyUp(keyCode,event);
+        }
+        return false;
     }
 
     @Override

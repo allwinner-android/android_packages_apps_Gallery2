@@ -19,6 +19,7 @@ package com.android.gallery3d.ui;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.view.MotionEvent;
+import android.view.KeyEvent;
 
 import com.android.gallery3d.anim.CanvasAnimation;
 import com.android.gallery3d.anim.StateTransitionAnimation;
@@ -289,6 +290,20 @@ public class GLView {
     }
 
     protected boolean onTouch(MotionEvent event) {
+        return false;
+    }
+
+    protected boolean onKeyDown(int keyCode, KeyEvent event) {
+       /* StackTraceElement[] trace = new Exception().getStackTrace();
+        for(int i=0;i<trace.length;i++)
+       	 Log.d(TAG,"get call stack = " + trace[i].toString());*/
+        return false;
+    }
+
+    protected boolean onKeyUp(int keyCode, KeyEvent event) {
+       /* StackTraceElement[] trace = new Exception().getStackTrace();
+        for(int i=0;i<trace.length;i++)
+         Log.d(TAG,"get call stack = " + trace[i].toString());*/
         return false;
     }
 
